@@ -32,7 +32,7 @@ using Rhino.PlugIns;
 [assembly: PlugInDescription(DescriptionType.Phone, "-")]
 [assembly: PlugInDescription(DescriptionType.Fax, "-")]
 [assembly: PlugInDescription(DescriptionType.Organization, "Kingsley Additive Manufacturing")]
-[assembly: PlugInDescription(DescriptionType.UpdateUrl, "-")]
+[assembly: PlugInDescription(DescriptionType.UpdateUrl, "http://kingsley.design")]
 [assembly: PlugInDescription(DescriptionType.WebSite, "http://kingsley.design")]
 
 // General Information about an assembly is controlled through the following 
