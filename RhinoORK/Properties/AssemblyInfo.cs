@@ -23,6 +23,17 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Rhino.PlugIns;
+
+// Plug-in Description Attributes
+[assembly: PlugInDescription(DescriptionType.Address, "Queenstown, MD")]
+[assembly: PlugInDescription(DescriptionType.Country, "USA")]
+[assembly: PlugInDescription(DescriptionType.Email, "rhinoOrk@kingsley.design")]
+[assembly: PlugInDescription(DescriptionType.Phone, "-")]
+[assembly: PlugInDescription(DescriptionType.Fax, "-")]
+[assembly: PlugInDescription(DescriptionType.Organization, "Kingsley Additive Manufacturing")]
+[assembly: PlugInDescription(DescriptionType.UpdateUrl, "-")]
+[assembly: PlugInDescription(DescriptionType.WebSite, "http://kingsley.design")]
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information

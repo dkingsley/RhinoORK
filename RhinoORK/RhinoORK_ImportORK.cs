@@ -92,6 +92,7 @@ namespace RhinoORK
             }
         }
 
+        doc.Views.Redraw();
         return result;
     }
 
