@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
+using System.Windows.Forms;
 
 using Rhino;
 using Rhino.Geometry;
@@ -49,44 +50,49 @@ namespace RhinoORK
 
     protected override Result RunCommand(RhinoDoc doc, RunMode mode)
     {
-        string zipPath = @"C:\Code\Develop\RhinoORK\Parrot_rev1.ork";
-        //string zipPath = @"C:\Code\Develop\RhinoORK\stinger_rev1.ork";
-        //string zipPath = @"C:\Code\Develop\RhinoORK\stinger_rev2.ork";
-
-        XmlDocument xmlDoc = new XmlDocument();
-               
-        using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update))
-        {
-           foreach (ZipArchiveEntry entry in archive.Entries)
-           {
-               if (entry.Name == "rocket.ork")
-                   xmlDoc.Load(entry.Open());
-           }
-        }
-
-        XmlElement root = xmlDoc.DocumentElement;
-
-        XmlNodeList rocketNds = root.GetElementsByTagName("rocket");
-
-        if (rocketNds.Count == 0)
-            return Result.Failure;
-
-        XmlElement rocketEle = rocketNds[0] as XmlElement;
-
-        XmlNodeList compNds = rocketNds[0].SelectNodes("/openrocket/rocket/subcomponents/stage/subcomponents/*");
-
         Result result = Result.Failure;
-        double stackLength = 0;
+        
+        OpenFileDialog openFileDlg = new OpenFileDialog();
+        openFileDlg.Filter = "OpenRocket files (*.ork)|*.ork|All files (*.*)|*.*";
+        openFileDlg.InitialDirectory = doc.Path;
+        openFileDlg.Title = "Please select a OpenRocket file to Import.";
 
-        foreach (XmlNode compNd in compNds)
+        if (openFileDlg.ShowDialog() == DialogResult.OK)
         {
-            if (compNd.Name == "nosecone")
-                result = CreateNoseCone(doc, compNd, ref stackLength);
-            else if (compNd.Name == "bodytube")
-                result = CreateBodyTube(doc, compNd, ref stackLength);
+            XmlDocument xmlDoc = new XmlDocument();
+
+            using (ZipArchive archive = ZipFile.Open(openFileDlg.FileName, ZipArchiveMode.Read))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    if (entry.Name == "rocket.ork")
+                        xmlDoc.Load(entry.Open());
+                }
+            }
+
+            XmlElement root = xmlDoc.DocumentElement;
+
+            XmlNodeList rocketNds = root.GetElementsByTagName("rocket");
+
+            if (rocketNds.Count == 0)
+                return Result.Failure;
+
+            XmlElement rocketEle = rocketNds[0] as XmlElement;
+
+            XmlNodeList compNds = rocketNds[0].SelectNodes("/openrocket/rocket/subcomponents/stage/subcomponents/*");
+                       
+            double stackLength = 0;
+
+            foreach (XmlNode compNd in compNds)
+            {
+                if (compNd.Name == "nosecone")
+                    result = CreateNoseCone(doc, compNd, ref stackLength);
+                else if (compNd.Name == "bodytube")
+                    result = CreateBodyTube(doc, compNd, ref stackLength);
+            }
         }
 
-      return result;
+        return result;
     }
 
     public enum NoseConeShapeType
