@@ -92,6 +92,7 @@ namespace RhinoORK
             }
         }
 
+        doc.Views.Redraw();
         return result;
     }
 
@@ -191,23 +192,160 @@ namespace RhinoORK
             }
         }
 
-        double rootFinLength = points[points.Count-1].X - points[0].X;
-        if (tabHeight*tabLength>0)
+        double rootChord = points[points.Count - 1].X - points[0].X;
+        CreateFinGeometry(doc, parentRadius, xStart, xEnd, ref result, count, positionType, position, cant, thickness, rootChord, tabHeight, ref tabLength, tabPositionType, points);
+
+        return result;
+    }
+
+    private Result CreateEllipticalFin(RhinoDoc doc, XmlNode compNd, double parentRadius, double xStart, double xEnd)
+    {
+        Result result = Rhino.Commands.Result.Failure;
+        XmlElement compEle = compNd as XmlElement;
+        XmlNodeList subCompNds = compNd.SelectNodes("subcomponents/*");
+
+        int count = 0;
+        PositionType positionType = PositionType.Top;
+        double position = 0;
+        double rotation = 0;
+        double cant = 0;
+        double thickness = 0;
+        double rootChord = 0;
+        double height = 0;
+        double tabHeight = 0;
+        double tabLength = 0;
+        RelativePositionType tabPositionType = RelativePositionType.Front;
+        double tabPosition = 0;
+        List<Point3d> points = new List<Point3d>();
+
+        foreach (XmlNode nd in compEle.ChildNodes)
+        {
+            if (nd.Name == "fincount")
+                count = int.Parse(nd.InnerText);
+            else if (nd.Name == "thickness")
+                thickness = Double.Parse(nd.InnerText);
+            else if (nd.Name == "rotation")
+                rotation = Double.Parse(nd.InnerText);
+            else if (nd.Name == "position")
+            {
+                position = Double.Parse(nd.InnerText);
+                positionType = (PositionType)Enum.Parse(typeof(PositionType), ((XmlElement)nd).GetAttribute("type"), true);
+            }
+            else if (nd.Name == "cant")
+                cant = Double.Parse(nd.InnerText);
+            else if (nd.Name == "tabheight")
+                tabHeight = Double.Parse(nd.InnerText);
+            else if (nd.Name == "tablength")
+                tabLength = Double.Parse(nd.InnerText);
+            else if (nd.Name == "tabposition")
+            {
+                tabPosition = Double.Parse(nd.InnerText);
+                tabPositionType = (RelativePositionType)Enum.Parse(typeof(RelativePositionType), ((XmlElement)nd).GetAttribute("relativeto"), true);
+            }
+            else if (nd.Name == "rootchord")
+                rootChord = Double.Parse(nd.InnerText);
+            else if (nd.Name == "height")
+                height = Double.Parse(nd.InnerText);
+        }
+
+        points.Add(new Point3d(0, 0, 0));
+        for (int i = 1; i < 31; i++ )
+        {
+            double a = Math.PI * (31 - 1 - i) / (31 - 1);
+            double x = (Math.Cos(a) + 1) / 2 * rootChord;
+            double y = Math.Sin(a) * height;
+            points.Add(new Point3d(x, y, 0));
+        }
+
+        CreateFinGeometry(doc, parentRadius, xStart, xEnd, ref result, count, positionType, position, cant, thickness, rootChord, tabHeight, ref tabLength, tabPositionType, points);
+
+        return result;
+    }
+      
+    private Result CreateTrapezoidFin(RhinoDoc doc, XmlNode compNd, double parentRadius, double xStart, double xEnd)
+    {
+        Result result = Rhino.Commands.Result.Failure;
+        XmlElement compEle = compNd as XmlElement;
+        XmlNodeList subCompNds = compNd.SelectNodes("subcomponents/*");
+
+        int count = 0;
+        PositionType positionType = PositionType.Top;
+        double position = 0;
+        double rotation = 0;
+        double cant = 0;
+        double thickness = 0;
+        double rootChord = 0;
+        double tipChord = 0;
+        double sweepLength = 0;
+        double height = 0;
+        double tabHeight = 0;
+        double tabLength = 0;
+        RelativePositionType tabPositionType = RelativePositionType.Front;
+        double tabPosition = 0;
+        List<Point3d> points = new List<Point3d>();
+
+        foreach (XmlNode nd in compEle.ChildNodes)
+        {
+            if (nd.Name == "fincount")
+                count = int.Parse(nd.InnerText);
+            else if (nd.Name == "thickness")
+                thickness = Double.Parse(nd.InnerText);
+            else if (nd.Name == "rotation")
+                rotation = Double.Parse(nd.InnerText);
+            else if (nd.Name == "position")
+            {
+                position = Double.Parse(nd.InnerText);
+                positionType = (PositionType)Enum.Parse(typeof(PositionType), ((XmlElement)nd).GetAttribute("type"), true);
+            }
+            else if (nd.Name == "cant")
+                cant = Double.Parse(nd.InnerText);
+            else if (nd.Name == "tabheight")
+                tabHeight = Double.Parse(nd.InnerText);
+            else if (nd.Name == "tablength")
+                tabLength = Double.Parse(nd.InnerText);
+            else if (nd.Name == "tabposition")
+            {
+                tabPosition = Double.Parse(nd.InnerText);
+                tabPositionType = (RelativePositionType)Enum.Parse(typeof(RelativePositionType), ((XmlElement)nd).GetAttribute("relativeto"), true);
+            }
+            else if (nd.Name == "rootchord")
+                rootChord = Double.Parse(nd.InnerText);
+            else if (nd.Name == "tipchord")
+                tipChord = Double.Parse(nd.InnerText);
+            else if (nd.Name == "sweeplength")
+                sweepLength = Double.Parse(nd.InnerText);
+            else if (nd.Name == "height")
+                height = Double.Parse(nd.InnerText);
+        }
+
+        points.Add(new Point3d(0, 0, 0));
+        points.Add(new Point3d(sweepLength, height, 0));
+        points.Add(new Point3d(sweepLength+tipChord, height, 0));
+        points.Add(new Point3d(rootChord, 0, 0));
+
+        CreateFinGeometry(doc, parentRadius, xStart, xEnd, ref result, count, positionType, position, cant, thickness, rootChord, tabHeight, ref tabLength, tabPositionType, points);
+
+        return result;
+    }
+
+    private static void CreateFinGeometry(RhinoDoc doc, double parentRadius, double xStart, double xEnd, ref Result result, int count, PositionType positionType, double position, double cant, double thickness, double rootChord, double tabHeight, ref double tabLength, RelativePositionType tabPositionType, List<Point3d> points)
+    {
+        if (tabHeight * tabLength > 0)
         {
             List<Point3d> tabPts = new List<Point3d>(); // add points from aft end of fin.
-            double remainingLength = rootFinLength - tabLength;
-            if (remainingLength <0)
+            double remainingLength = rootChord - tabLength;
+            if (remainingLength < 0)
             {
-                tabLength = rootFinLength;
+                tabLength = rootChord;
                 remainingLength = 0;
             }
 
-            switch(tabPositionType)
+            switch (tabPositionType)
             {
                 case RelativePositionType.Front:
                     tabPts.Add(new Point3d(points[0].X + tabLength, 0, 0));
                     tabPts.Add(new Point3d(points[0].X + tabLength, -tabHeight, 0));
-                    tabPts.Add(new Point3d(points[0].X,-tabHeight, 0));
+                    tabPts.Add(new Point3d(points[0].X, -tabHeight, 0));
                     tabPts.Add(new Point3d(points[0].X, 0, 0));
                     break;
                 case RelativePositionType.Center:
@@ -240,7 +378,7 @@ namespace RhinoORK
                 xLoc = xStart + position;
                 break;
             case PositionType.Bottom:
-                xLoc = xEnd-rootFinLength + position;
+                xLoc = xEnd - rootChord + position;
                 break;
             case PositionType.Middle:
                 xLoc = (xEnd - xStart) / 2 + position;
@@ -260,9 +398,9 @@ namespace RhinoORK
             Extrusion ext = Extrusion.Create(curve.ToNurbsCurve(), thickness, true);
             brep = ext.ToBrep();
 
-            Transform trans = Transform.Translation(new Vector3d(0, parentRadius, thickness/2));
+            Transform trans = Transform.Translation(new Vector3d(0, parentRadius, thickness / 2));
             brep.Transform(trans);
-            trans = Transform.Rotation(cant*Math.PI/180.0, Vector3d.YAxis, new Point3d(rootFinLength / 2, 0, 0));
+            trans = Transform.Rotation(cant * Math.PI / 180.0, Vector3d.YAxis, new Point3d(rootChord / 2, 0, 0));
             brep.Transform(trans);
             trans = Transform.Translation(new Vector3d(xLoc, 0, 0));
             brep.Transform(trans);
@@ -270,9 +408,9 @@ namespace RhinoORK
 
             double deltaAng = 360 / count;
 
-            for (int i=1; i<count; i++)
+            for (int i = 1; i < count; i++)
             {
-                Transform copyTrans = Transform.Rotation(i*deltaAng * Math.PI / 180.0, Vector3d.XAxis, new Point3d(0, 0, 0));
+                Transform copyTrans = Transform.Rotation(i * deltaAng * Math.PI / 180.0, Vector3d.XAxis, new Point3d(0, 0, 0));
                 Brep newBrep = brep.DuplicateBrep();
                 newBrep.Transform(copyTrans);
                 breps.Add(newBrep);
@@ -288,8 +426,6 @@ namespace RhinoORK
 
             doc.Views.Redraw();
         }
-
-        return result;
     }
 
     private Result CreateBodyTube(RhinoDoc doc, XmlNode compNd, ref double stackLength)
@@ -371,8 +507,12 @@ namespace RhinoORK
                 result = CreateInnerTube(doc, subNd, stackLength - length, stackLength);
             else if (subNd.Name == "freeformfinset")
                 result = CreateFreeFormFin(doc, subNd, radius, stackLength - length, stackLength);
+            else if (subNd.Name == "ellipticalfinset")
+                result = CreateEllipticalFin(doc, subNd, radius, stackLength - length, stackLength);
+            else if (subNd.Name == "trapezoidfinset")
+                result = CreateTrapezoidFin(doc, subNd, radius, stackLength - length, stackLength);
         }
-
+        
         return result;
     }
 
