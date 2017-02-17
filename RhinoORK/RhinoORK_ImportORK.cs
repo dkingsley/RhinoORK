@@ -916,18 +916,29 @@ namespace RhinoORK
         }
 
         // generate geometry and create solid.
+        INoseCone profile = null;
         int numberDivisions = 100;
-        OgiveCurve ogive = new OgiveCurve(aftRadius, length);
-        double xa = ogive.SphericalCapApex(0);
+            //        OgiveCurve ogive = new OgiveCurve(aftRadius, length);
+        double xa = 0; // ogive.SphericalCapApex(0);
         double delta = (length - xa) / (numberDivisions - 1);
         double x = xa;
         double y = 0;
         List<Point3d> points = new List<Point3d>();
 
+        switch (shape)
+        {
+                case NoseConeShapeType.Ogive:
+                    profile = new OgiveCurve(aftRadius, length);
+                    break;
+                case NoseConeShapeType.Haack:
+                    profile = new HaackCurve(aftRadius, length, shapeParameter);
+                    break;
+        }
+
         for (int i = 0; i < numberDivisions; i++)
         {
             double angle = (double)i * System.Math.PI / (double)numberDivisions;
-            y = ogive.Evaluate(x);
+            y = profile.Evaluate(x);
 
             points.Add(new Point3d(x, y, 0));
 

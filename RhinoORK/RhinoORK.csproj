@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="RhinoCommon">
-      <HintPath>..\..\..\Orca3d\Orca3d\Rhino_DotNet\RhinoCommon.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Rhinoceros 5.0 (64-bit)\System\RhinoCommon.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -50,6 +50,7 @@
     <Compile Include="Geometry\CGHelpers.cs" />
     <Compile Include="Geometry\EllipticCurve.cs" />
     <Compile Include="Geometry\HaackCurve.cs" />
+    <Compile Include="Geometry\INoseCone.cs" />
     <Compile Include="Geometry\OgiveCurve.cs" />
     <Compile Include="Geometry\ParabolicCurve.cs" />
     <Compile Include="RhinoOrkPlugin.cs" />

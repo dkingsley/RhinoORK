@@ -31,7 +31,7 @@ namespace RhinoORK.Geometry
     /// Class definition of an Haack curve, contant == 1/3 for LV-Haack (LV indicates minimum drag for a given length and volume),
     /// and constant == 0 for LD-Haack or Von Kármán (LD signifies minimum drag for the given length and diameter)
 	/// </summary>
-	public class HaackCurve
+	public class HaackCurve: INoseCone
 	{
 		private double _radiusBase;
         private double _length;

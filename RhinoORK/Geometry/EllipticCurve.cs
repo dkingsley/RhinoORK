@@ -30,8 +30,8 @@ namespace RhinoORK.Geometry
 	/// <summary>
 	/// Class definition of an Elliptic curve
 	/// </summary>
-	public class EllipticCurve
-	{
+	public class EllipticCurve : INoseCone
+    {
 		private double _radiusBase;
 		private double _lengthCurve;
 

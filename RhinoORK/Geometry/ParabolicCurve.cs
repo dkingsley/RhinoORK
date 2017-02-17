@@ -30,8 +30,8 @@ namespace RhinoORK.Geometry
 	/// <summary>
 	/// Class definition of an Parabolic curve
 	/// </summary>
-	public class ParabolicCurve
-	{
+	public class ParabolicCurve : INoseCone
+    {
 		private double _radiusBase;
 		private double _lengthCurve;
 		private double _k;

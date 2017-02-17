@@ -30,8 +30,8 @@ namespace RhinoORK.Geometry
 	/// <summary>
 	/// Class definition of an ogive curve
 	/// </summary>
-	public class OgiveCurve
-	{
+	public class OgiveCurve : INoseCone
+    {
 		private double _radiusBase;
 		private double _lengthCurve;
 		private double _rho;

@@ -30,8 +30,8 @@ namespace RhinoORK.Geometry
 	/// <summary>
 	/// Class definition of an Arc curve
 	/// </summary>
-	public class ArcCurve
-	{
+	public class ArcCurve : INoseCone
+    {
 		private double _radiusBase;
 		
         public ArcCurve(double radius)
